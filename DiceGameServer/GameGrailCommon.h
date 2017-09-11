@@ -10,7 +10,9 @@
 #include "action_respond.pb.h"
 
 #include <list>
-#define DEBUG
+#if _MSC_VER >= 1600  
+#pragma execution_character_set("utf-8")  
+#endif
 using namespace boost::interprocess;
 using namespace network;
 using namespace std;
@@ -62,6 +64,7 @@ enum GrailError{
 	GE_NO_STATE,
 	GE_NO_CONTEXT,
 	GE_NO_REPLY,
+	GE_INTERRUPTED,
 	GE_NOT_SUPPORTED,
 	GE_PLAYER_FULL,
 	GE_GUEST_FULL,
@@ -344,6 +347,7 @@ enum STEP{
 #define MAXPLAYER 8
 #define MAXROLES 20
 const int BP_ALTERNATIVE_NUM[] = {12,16,20};
+extern ELogLevel logLevel;
 extern CardEntity* cardList[CARDSUM];
 CardEntity* getCardByID(int id);
 #define RESULT_UNKNOWN 30000
@@ -422,7 +426,6 @@ typedef struct{
 
 #define TOQSTR(x)  boost::lexical_cast<std::string>(x)
 
-string combMessage(string item1,string item2 = "",string item3 = "",string item4 = "",string item5 = "",string item6 = "",string item7 = "");
 //编码器,编辑各类通讯信息
 class Coder
 {
@@ -757,6 +760,19 @@ public:
 	{
 		error.set_id(id);
 		error.set_dst_id(dstId);
+	}
+	static void pollingMsg(string object, list<string> options, PollingRequest& msg)
+	{
+		msg.set_object(object);
+		list<string>::iterator it;
+		for (it = options.begin(); it != options.end(); ++it)
+		{
+			msg.add_options(*it);
+		}
+	}
+	static void noticeMsg(string notice, Gossip& msg) {
+		msg.set_type(GOSSIP_NOTICE);
+		msg.set_txt(notice);
 	}
 };
 

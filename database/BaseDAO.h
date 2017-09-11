@@ -5,7 +5,6 @@ class BaseDAO
 {
 public:
 	BaseDAO(DBConnection* conn): connection(conn) {}
-
 protected:
 	DBConnection* connection;
 };
